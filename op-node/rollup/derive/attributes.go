@@ -17,6 +17,7 @@ import (
 type L1ReceiptsFetcher interface {
 	InfoByHash(ctx context.Context, hash common.Hash) (eth.BlockInfo, error)
 	FetchReceipts(ctx context.Context, blockHash common.Hash) (eth.BlockInfo, types.Receipts, error)
+	Call(ctx context.Context, msg map[string]interface{}, blockTag string) (hexutil.Bytes, error)
 }
 
 type SystemConfigL2Fetcher interface {
@@ -45,6 +46,7 @@ func NewFetchingAttributesBuilder(rollupCfg *rollup.Config, l1 L1ReceiptsFetcher
 // A crit=true error means the input arguments are inconsistent or invalid.
 func (ba *FetchingAttributesBuilder) PreparePayloadAttributes(ctx context.Context, l2Parent eth.L2BlockRef, epoch eth.BlockID) (attrs *eth.PayloadAttributes, err error) {
 	var l1Info eth.BlockInfo
+	var syncTx hexutil.Bytes
 	var depositTxs []hexutil.Bytes
 	var seqNumber uint64
 
@@ -77,6 +79,7 @@ func (ba *FetchingAttributesBuilder) PreparePayloadAttributes(ctx context.Contex
 			return nil, NewCriticalError(fmt.Errorf("failed to apply derived L1 sysCfg updates: %w", err))
 		}
 
+		info.Hash()
 		l1Info = info
 		depositTxs = deposits
 		seqNumber = 0
@@ -121,8 +124,14 @@ func (ba *FetchingAttributesBuilder) PreparePayloadAttributes(ctx context.Contex
 		return nil, NewCriticalError(fmt.Errorf("failed to create l1InfoTx: %w", err))
 	}
 
+	syncTx, err = SyncTransactions(ctx, ba.rollupCfg, ba.l1, l1Info.NumberU64(), seqNumber, l1Info.Hash(), nextL2Time)
+	if err != nil {
+		return nil, NewCriticalError(fmt.Errorf("failed to create syncTx: %w", err))
+	}
+
 	txs := make([]hexutil.Bytes, 0, 1+len(depositTxs)+len(upgradeTxs))
 	txs = append(txs, l1InfoTx)
+	txs = append(txs, syncTx)
 	txs = append(txs, depositTxs...)
 	txs = append(txs, upgradeTxs...)
 

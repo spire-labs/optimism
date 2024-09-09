@@ -298,6 +298,18 @@ func (s *EthClient) PayloadByLabel(ctx context.Context, label eth.BlockLabel) (*
 	return s.payloadCall(ctx, "eth_getBlockByNumber", label)
 }
 
+func (s *EthClient) Call(ctx context.Context, msg map[string]interface{}, blockTag string) (hexutil.Bytes, error) {
+	var result hexutil.Bytes
+	err := s.client.CallContext(ctx, &result, "eth_call", msg, blockTag)
+	log.Debug("eth_call", "result", result, "err", err)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 // FetchReceipts returns a block info and all of the receipts associated with transactions in the block.
 // It verifies the receipt hash in the block header against the receipt hash of the fetched receipts
 // to ensure that the execution engine did not fail to return any receipts.

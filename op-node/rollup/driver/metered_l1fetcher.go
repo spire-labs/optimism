@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum-optimism/optimism/op-node/rollup/derive"
 	"github.com/ethereum-optimism/optimism/op-service/eth"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -55,6 +56,11 @@ func (m *MeteredL1Fetcher) InfoAndTxsByHash(ctx context.Context, hash common.Has
 func (m *MeteredL1Fetcher) FetchReceipts(ctx context.Context, blockHash common.Hash) (eth.BlockInfo, types.Receipts, error) {
 	defer m.recordTime("FetchReceipts")()
 	return m.inner.FetchReceipts(ctx, blockHash)
+}
+
+func (m *MeteredL1Fetcher) Call(ctx context.Context, msg map[string]interface{}, blockTag string) (hexutil.Bytes, error) {
+	defer m.recordTime("Call")()
+	return m.inner.Call(ctx, msg, blockTag)
 }
 
 var _ derive.L1Fetcher = (*MeteredL1Fetcher)(nil)
