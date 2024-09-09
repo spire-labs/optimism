@@ -18,6 +18,7 @@ import { ProxyAdmin } from "src/universal/ProxyAdmin.sol";
 import { AddressManager } from "src/legacy/AddressManager.sol";
 import { Proxy } from "src/universal/Proxy.sol";
 import { L1StandardBridge } from "src/L1/L1StandardBridge.sol";
+import { Sync } from "src/L1/Sync.sol";
 import { StandardBridge } from "src/universal/StandardBridge.sol";
 import { OptimismPortal } from "src/L1/OptimismPortal.sol";
 import { OptimismPortal2 } from "src/L1/OptimismPortal2.sol";
@@ -394,6 +395,7 @@ contract Deploy is Deployer {
         deployPreimageOracle();
         deployMips();
         deployAnchorStateRegistry();
+        deploySync();
     }
 
     /// @notice Initialize all of the implementations
@@ -811,6 +813,15 @@ contract Deploy is Deployer {
         console.log("MIPS deployed at %s", address(mips));
 
         addr_ = address(mips);
+    }
+
+    function deploySync() public broadcast returns (address addr_) {
+        console.log("Deploying Sync implementation");
+        Sync sync = new Sync{ salt: _implSalt() }();
+        save("Sync", address(sync));
+        console.log("Sync deployed at %s", address(sync));
+
+        addr_ = address(sync);
     }
 
     /// @notice Deploy the AnchorStateRegistry

@@ -7,6 +7,7 @@ import { DelayedWETH } from "src/dispute/weth/DelayedWETH.sol";
 import { PreimageOracle } from "src/cannon/PreimageOracle.sol";
 import { IPreimageOracle } from "src/cannon/interfaces/IPreimageOracle.sol";
 import { MIPS } from "src/cannon/MIPS.sol";
+import { Sync } from "src/L1/Sync.sol";
 
 import { OptimismPortal2 } from "src/L1/OptimismPortal2.sol";
 import { SystemConfig } from "src/L1/SystemConfig.sol";
@@ -94,6 +95,7 @@ contract DeployImplementationsOutput {
         L1ERC721Bridge l1ERC721BridgeImpl;
         L1StandardBridge l1StandardBridgeImpl;
         OptimismMintableERC20Factory optimismMintableERC20FactoryImpl;
+        Sync sync;
     }
 
     Output internal outputs;
@@ -109,6 +111,7 @@ contract DeployImplementationsOutput {
         else if (sel == this.l1ERC721BridgeImpl.selector) outputs.l1ERC721BridgeImpl = L1ERC721Bridge(_addr);
         else if (sel == this.l1StandardBridgeImpl.selector) outputs.l1StandardBridgeImpl = L1StandardBridge(payable(_addr));
         else if (sel == this.optimismMintableERC20FactoryImpl.selector) outputs.optimismMintableERC20FactoryImpl = OptimismMintableERC20Factory(_addr);
+        else if (sel == this.sync.selector) outputs.sync = Sync(_addr);
         else revert("DeployImplementationsOutput: unknown selector");
         // forgefmt: disable-end
     }
@@ -145,6 +148,11 @@ contract DeployImplementationsOutput {
     function delayedWETHImpl() public view returns (DelayedWETH) {
         DeployUtils.assertValidContractAddress(address(outputs.delayedWETHImpl));
         return outputs.delayedWETHImpl;
+    }
+
+    function sync() public view returns (Sync) {
+        DeployUtils.assertValidContractAddress(address(outputs.sync));
+        return outputs.sync;
     }
 
     function preimageOracleSingleton() public view returns (PreimageOracle) {
@@ -217,6 +225,7 @@ contract DeployImplementations is Script {
         deployDelayedWETHImpl(_dsi, _dso);
         deployPreimageOracleSingleton(_dsi, _dso);
         deployMipsSingleton(_dsi, _dso);
+        deploySync(_dsi, _dso);
 
         _dso.checkOutput();
     }
@@ -332,6 +341,14 @@ contract DeployImplementations is Script {
 
         vm.label(address(mipsSingleton), "MIPSSingleton");
         _dso.set(_dso.mipsSingleton.selector, address(mipsSingleton));
+    }
+
+    function deploySync(DeployImplementationsInput, DeployImplementationsOutput _dso) public {
+        vm.broadcast(msg.sender);
+        Sync sync = new Sync();
+
+        vm.label(address(sync), "Sync");
+        _dso.set(_dso.sync.selector, address(sync));
     }
 
     // -------- Utilities --------

@@ -13,6 +13,7 @@ import { L1CrossDomainMessenger } from "src/L1/L1CrossDomainMessenger.sol";
 import { L1ERC721Bridge } from "src/L1/L1ERC721Bridge.sol";
 import { L1StandardBridge } from "src/L1/L1StandardBridge.sol";
 import { OptimismMintableERC20Factory } from "src/universal/OptimismMintableERC20Factory.sol";
+import { Sync } from "src/L1/Sync.sol";
 
 import {
     DeployImplementationsInput,
@@ -88,7 +89,8 @@ contract DeployImplementationsOutput_Test is Test {
             l1CrossDomainMessengerImpl: L1CrossDomainMessenger(makeAddr("l1CrossDomainMessengerImpl")),
             l1ERC721BridgeImpl: L1ERC721Bridge(makeAddr("l1ERC721BridgeImpl")),
             l1StandardBridgeImpl: L1StandardBridge(payable(makeAddr("l1StandardBridgeImpl"))),
-            optimismMintableERC20FactoryImpl: OptimismMintableERC20Factory(makeAddr("optimismMintableERC20FactoryImpl"))
+            optimismMintableERC20FactoryImpl: OptimismMintableERC20Factory(makeAddr("optimismMintableERC20FactoryImpl")),
+            sync: Sync(makeAddr("sync"))
         });
 
         vm.etch(address(output.optimismPortal2Impl), hex"01");
@@ -100,6 +102,7 @@ contract DeployImplementationsOutput_Test is Test {
         vm.etch(address(output.l1ERC721BridgeImpl), hex"01");
         vm.etch(address(output.l1StandardBridgeImpl), hex"01");
         vm.etch(address(output.optimismMintableERC20FactoryImpl), hex"01");
+        vm.etch(address(output.sync), hex"01");
 
         dso.set(dso.optimismPortal2Impl.selector, address(output.optimismPortal2Impl));
         dso.set(dso.delayedWETHImpl.selector, address(output.delayedWETHImpl));
@@ -110,6 +113,7 @@ contract DeployImplementationsOutput_Test is Test {
         dso.set(dso.l1ERC721BridgeImpl.selector, address(output.l1ERC721BridgeImpl));
         dso.set(dso.l1StandardBridgeImpl.selector, address(output.l1StandardBridgeImpl));
         dso.set(dso.optimismMintableERC20FactoryImpl.selector, address(output.optimismMintableERC20FactoryImpl));
+        dso.set(dso.sync.selector, address(output.sync));
 
         assertEq(address(output.optimismPortal2Impl), address(dso.optimismPortal2Impl()), "100");
         assertEq(address(output.delayedWETHImpl), address(dso.delayedWETHImpl()), "200");

@@ -249,6 +249,7 @@ contract L2Genesis is Deployer {
         setSchemaRegistry(); // 20
         setEAS(); // 21
         setGovernanceToken(); // 42: OP (not behind a proxy)
+        setEthereum(); // 27
         if (cfg.useInterop()) {
             setCrossL2Inbox(); // 22
             setL2ToL2CrossDomainMessenger(); // 23
@@ -271,6 +272,10 @@ contract L2Genesis is Deployer {
 
     function setL2ToL1MessagePasser() public {
         _setImplementationCode(Predeploys.L2_TO_L1_MESSAGE_PASSER);
+    }
+
+    function setEthereum() public {
+        _setImplementationCode(Predeploys.ETHEREUM);
     }
 
     /// @notice This predeploy is following the safety invariant #1.
