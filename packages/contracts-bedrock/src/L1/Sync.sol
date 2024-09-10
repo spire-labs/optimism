@@ -11,7 +11,6 @@ contract Sync {
     address[] internal _targets;
 
     // NOTE: For the sake of poc this is left open for anyone to call, in production this should be changed
-    // NOTE: __retdata is unneccesary to save as we get it from sync() need to change this later
     function setSync(bytes[] memory __calldata, address[] memory __targets) external {
          uint256 __calldataLength = __calldata.length;
         if (__calldataLength != __targets.length) revert NotParallelArrays();
