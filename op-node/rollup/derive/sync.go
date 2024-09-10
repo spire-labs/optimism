@@ -23,7 +23,7 @@ func SyncTransactions(ctx context.Context, rollupCfg *rollup.Config, l1Client L1
 	var dep types.DepositTx
 	var syncTx []byte
 	// Hardcoded for now, needs to be added to rollup config
-	syncContract = common.HexToAddress("0xc448A94eE3b3Bae6e939D7a1C171597Af31cd091")
+	syncContract = common.HexToAddress("0xCd271737d57b705dD49DaF3fBa20a53d05E410d8")
 	addressZero := common.HexToAddress("0x0000000000000000000000000000000000000000")
 
 	parsedABI, err := abi.JSON(strings.NewReader(syncABI))
