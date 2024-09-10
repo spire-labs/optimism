@@ -79,7 +79,6 @@ func (ba *FetchingAttributesBuilder) PreparePayloadAttributes(ctx context.Contex
 			return nil, NewCriticalError(fmt.Errorf("failed to apply derived L1 sysCfg updates: %w", err))
 		}
 
-		info.Hash()
 		l1Info = info
 		depositTxs = deposits
 		seqNumber = 0
