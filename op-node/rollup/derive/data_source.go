@@ -19,6 +19,7 @@ type DataIter interface {
 
 type L1TransactionFetcher interface {
 	InfoAndTxsByHash(ctx context.Context, hash common.Hash) (eth.BlockInfo, types.Transactions, error)
+	FetchReceipts(ctx context.Context, blockHash common.Hash) (eth.BlockInfo, types.Receipts, error)
 }
 
 type L1BlobsFetcher interface {
@@ -73,6 +74,8 @@ func (ds *DataSourceFactory) OpenData(ctx context.Context, ref eth.L1BlockRef, b
 			return nil, fmt.Errorf("ecotone upgrade active but beacon endpoint not configured")
 		}
 		src = NewBlobDataSource(ctx, ds.log, ds.dsCfg, ds.fetcher, ds.blobsFetcher, ref, batcherAddr)
+	} else if ds.dsCfg.blobAggregatorInboxAddress != nil {
+		src = NewAggregatedBlobDataSource(ctx, ds.log, ds.dsCfg, ds.fetcher, ds.blobsFetcher, ref, batcherAddr)
 	} else {
 		src = NewCalldataSource(ctx, ds.log, ds.dsCfg, ds.fetcher, ref, batcherAddr)
 	}
@@ -85,9 +88,11 @@ func (ds *DataSourceFactory) OpenData(ctx context.Context, ref eth.L1BlockRef, b
 
 // DataSourceConfig regroups the mandatory rollup.Config fields needed for DataFromEVMTransactions.
 type DataSourceConfig struct {
-	l1Signer          types.Signer
-	batchInboxAddress common.Address
-	altDAEnabled      bool
+	l1Signer                    types.Signer
+	batchInboxAddress           common.Address
+	altDAEnabled                bool
+	blobAggregatorInboxAddress  *common.Address
+	blobAggregatorSenderAddress *common.Address
 }
 
 // isValidBatchTx returns true if:
